@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>PSD Auto Slicer</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <div class="topbar">
+        <div class="brand">PSD Auto Slicer</div>
+        <div class="tagline">
+          <span>UI 资源自动切图插件</span>
+          <small>Made by David&amp;Codex</small>
+        </div>
+        <div class="doc-pill" id="docName">未检测到 PSD</div>
+        <div class="status-pill" id="statusText">就绪</div>
+      </div>
+
+      <div class="content">
+        <div class="left-panel">
+          <div class="panel-title-row">
+            <div class="panel-title">资源与导出预览</div>
+          </div>
+
+          <div class="selection-box">
+            <div class="selection-info">
+              <div class="selection-title" id="selectionTitle">当前选中：读取中...</div>
+              <div class="selection-meta" id="selectionMeta">请先在 Photoshop 中选择图层</div>
+            </div>
+            <button class="scan-button" id="scanButton">刷新预览</button>
+          </div>
+
+          <div class="block-title">切图方式</div>
+          <div class="mode-row">
+            <div class="mode-card is-active" data-mode="selected" role="button" tabindex="0" aria-selected="true">
+              <span>选中的图层</span>
+              <small>多选时分别导出</small>
+            </div>
+            <div class="mode-card" data-mode="children" role="button" tabindex="0" aria-selected="false">
+              <span class="mode-label mode-label-stack">
+                <span>选中的图层</span>
+                <span>及子图层</span>
+              </span>
+              <small>递归细分导出</small>
+            </div>
+            <div class="mode-card" data-mode="all" role="button" tabindex="0" aria-selected="false">
+              <span>PSD所有图层</span>
+              <small>全文件批量导出</small>
+            </div>
+          </div>
+          <div class="mode-copy" id="modeCopy">把当前选中的每个图层或图层组分别导出为独立 PNG。多选时不会合并成一张图。</div>
+
+          <div class="block-title assets-title">资源列表</div>
+          <div class="asset-list" id="assetList">
+            <div class="asset-row">
+              <span>Btn_矩形_1010_拷贝.png</span>
+              <em>normal · 128×64</em>
+            </div>
+            <div class="asset-row">
+              <span>Btn_矩形_1010_拷贝_9s.png</span>
+              <em>9-slice · 26×18</em>
+            </div>
+            <div class="asset-row">
+              <span>Icon_图层_24_拷贝.png</span>
+              <em>normal · 64×64</em>
+            </div>
+            <div class="asset-row">
+              <span>Font_Gold_19999.png</span>
+              <em>text · 80×28</em>
+            </div>
+            <div class="hint-row">隐藏图层、空图层、重名文件会在这里提示</div>
+            <div class="hint-row">点击资源可查看来源图层路径与导出设置</div>
+          </div>
+
+          <div class="export-summary" id="exportSummary">
+            <strong>导出状态：4 个资源待导出，0 个命名冲突</strong>
+            <span>将生成 PNG 资源与 export_manifest.json</span>
+          </div>
+        </div>
+
+        <div class="right-panel">
+          <div class="side-title">导出规则</div>
+
+          <div class="rule-block first">
+            <div class="rule-title">保存位置</div>
+            <div class="input-box path-box">
+              <textarea class="text-field path-field" id="outputPath" readonly placeholder="/Downloads/UI_Export"></textarea>
+            </div>
+            <div class="path-actions">
+              <label class="check-line folder-line">
+                <input id="autoGroupFolders" type="checkbox" checked />
+                <span>自动分文件夹</span>
+              </label>
+              <button class="choose-button" id="chooseFolder">选择...</button>
+            </div>
+          </div>
+
+          <div class="rule-block">
+            <div class="rule-title">命名</div>
+            <div class="input-box">
+              <input class="text-field" id="prefixInput" type="text" placeholder="ui_package_" />
+            </div>
+            <label class="check-line">
+              <input id="autoRename" type="checkbox" checked />
+              <span>自动规范命名</span>
+            </label>
+            <div class="help-text">关闭后尽量按原图层名输出，仅替换非法字符。</div>
+          </div>
+
+          <div class="rule-block">
+            <div class="rule-title">尺寸规则</div>
+            <label class="check-line">
+              <input id="evenSize" type="checkbox" checked />
+              <span>强制偶数尺寸</span>
+            </label>
+            <label class="check-line">
+              <input id="canvasSize" type="checkbox" />
+              <span>画布尺寸输出</span>
+            </label>
+            <label class="check-line">
+              <input id="uniformSize" type="checkbox" />
+              <span>统一尺寸</span>
+            </label>
+            <div class="size-line">
+              <div class="number-box">
+                <input id="uniformWidth" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="128" />
+              </div>
+              <b>*</b>
+              <div class="number-box">
+                <input id="uniformHeight" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="128" />
+              </div>
+            </div>
+            <div class="help-text">内容居中；尺寸小于内容时居中裁切。</div>
+          </div>
+
+          <div class="rule-block">
+            <div class="rule-title">九宫切图</div>
+            <label class="check-line">
+              <input id="nineSlice" type="checkbox" />
+              <span>额外导出 _9s 最小图</span>
+            </label>
+            <div class="nine-line">
+              <div class="number-box">
+                <input id="nineLeft" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="8" />
+              </div>
+              <span>左</span>
+              <div class="number-box">
+                <input id="nineRight" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="8" />
+              </div>
+              <span>右</span>
+            </div>
+            <div class="nine-line">
+              <div class="number-box">
+                <input id="nineTop" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" />
+              </div>
+              <span>上</span>
+              <div class="number-box">
+                <input id="nineBottom" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" />
+              </div>
+              <span>下</span>
+            </div>
+            <div class="help-text">空白或 0 表示该方向不切，可退化成三宫格。</div>
+          </div>
+
+          <div class="button-row">
+            <button class="cancel-button" id="cancelButton">取消</button>
+            <button class="start-button" id="exportButton">开始切图</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./src/main.js"></script>
+  </body>
+</html>

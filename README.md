@@ -1,165 +1,223 @@
 # PSD Auto Slicer
 
-A Photoshop UXP panel plugin for automatically slicing and exporting UI assets from PSD files.
+English | [中文](#中文)
 
-![PSD Auto Slicer](PSD_Auto_Slicer_Share_Poster.png)
+PSD Auto Slicer is a Photoshop UXP plugin and JSX workflow helper for exporting UI assets from PSD files. It helps artists and game UI teams batch-slice layers into transparent PNG files with consistent naming, sizing rules, nine-slice output, and an export manifest for downstream tools.
 
----
+## Features
 
-## Features / 功能
+- Export selected layers, selected layer children, or all PSD layers.
+- Auto-name UI assets with semantic prefixes such as `Bg`, `Panel`, `Banner`, `Icon`, `Line`, `Btn`, and `Font`.
+- Keep duplicate layer names without dropping assets; conflicting output names get suffixes such as `_1`, `_2`.
+- Optional folder grouping, even-size output, canvas-size output, and uniform-size output.
+- Optional compact nine-slice export as `_9s.png`.
+- Generate `export_manifest.json` with size, path, canvas, nine-slice, identity, and hash metadata.
+- Includes a legacy JSX script for direct script-based slicing.
 
-- **Three export modes** — export selected layers, selected layers with children, or all layers in the PSD
-- **Auto naming** — adds type prefix (`shape_`, `image_`, `text_`), normalizes to lower snake_case
-- **Even-size rule** — forces even pixel dimensions for engine compatibility
-- **Uniform size** — pads or crops all exports to a fixed canvas size
-- **Nine-slice export** — generates a compact `_9s` image alongside the original, ready for engine nine-slice scaling
-- **Auto folder** — organizes exports into subfolders by root group name
-- **Export manifest** — writes `export_manifest.json` with full metadata for each asset
-- **Resizable panel** — docks into Photoshop sidebar, scales down while keeping the export button always visible
+## Install
 
----
+### Option A: Install the UXP package
 
-三种导出模式、自动命名、偶数尺寸、统一尺寸、九宫切图、自动分文件夹、导出清单，面板可缩放并始终显示切图按钮。
+Use the packaged `.ccx` file from `dist`:
 
----
-
-## Installation / 安装
-
-### Double-click install (recommended) / 双击安装（推荐）
-
-1. Download `PSD-Auto-Slicer-UXP-v0.2.30.ccx`
-2. Double-click the file — Creative Cloud Desktop will install it automatically
-3. Restart Photoshop
-4. Open via **Plugins > PSD Auto Slicer**
-
-> If Creative Cloud blocks the file, use the developer install method below.
-
----
-
-1. 下载 `PSD-Auto-Slicer-UXP-v0.2.30.ccx`
-2. 双击文件，Creative Cloud 桌面端会自动安装
-3. 重启 Photoshop
-4. 从 **Plugins > PSD Auto Slicer** 打开面板
-
-> 如果 Creative Cloud 拦截安装，请使用下方开发者模式安装。
-
----
-
-### Developer install / 开发者模式安装
-
-1. Install [Adobe UXP Developer Tool](https://developer.adobe.com/photoshop/uxp/devtool/)
-2. Click **Add Plugin...** and select `manifest.json` from the extracted plugin folder
-3. Click **Load**, then open the panel in Photoshop
-
----
-
-## How to Use / 使用方法
-
-### PSD convention / PSD 规范（推荐）
-
-Place exportable assets inside a top-level group named `EXPORT`:
-
+```text
+PSD-Auto-Slicer-UXP-v0.2.49.ccx
 ```
+
+1. Double-click the `.ccx` file.
+2. Complete the installation in Creative Cloud Desktop.
+3. Restart Photoshop.
+4. Open `Plugins > PSD Auto Slicer`.
+
+For Photoshop 2022 or environments without Creative Cloud Desktop, use the manual package:
+
+```text
+PSD-Auto-Slicer-UXP-v0.2.49-PS2022-manual.zip
+```
+
+Copy the `PSD Auto Slicer` folder into:
+
+```text
+C:\Program Files\Adobe\Adobe Photoshop 2022\Plug-ins\
+```
+
+### Option B: Load in UXP Developer Tool
+
+1. Install Adobe UXP Developer Tool.
+2. Add this folder by selecting `manifest.json`.
+3. Click `Load`.
+4. Open the plugin from Photoshop's `Plugins` menu.
+
+### Option C: Run the JSX script directly
+
+Use the script in:
+
+```text
+legacy/psd-auto-slicer.jsx
+```
+
+Or use the latest standalone script from this workspace:
+
+```text
+scripts/psd-auto-slicer.jsx
+```
+
+In Photoshop, choose:
+
+```text
+File > Scripts > Browse...
+```
+
+Then select the JSX file.
+
+## Usage
+
+1. Open a PSD in Photoshop.
+2. Select the target layer or group.
+3. Open `Plugins > PSD Auto Slicer`, or run the JSX script.
+4. Choose the output folder and export options.
+5. Choose an export mode.
+6. Click `开始切图`.
+7. Check the generated PNG files and `export_manifest.json`.
+
+## Recommended PSD Convention
+
+Use a top-level group such as:
+
+```text
 EXPORT/
   Btn Start Normal
-  Btn Start Pressed
   Icon Coin
   Panel Bg
 ```
 
-You can also mark any layer anywhere with `@export` or `[export]` in the name, and skip layers with `@ignore` or `[ignore]`.
+Optional layer markers:
 
----
-
-将可导出资源放在名为 `EXPORT` 的顶层图层组内，或在图层名中加 `@export` / `[export]` 标记，加 `@ignore` / `[ignore]` 跳过。
-
----
-
-### Export steps / 导出步骤
-
-1. Open your PSD in Photoshop
-2. Open the **PSD Auto Slicer** panel
-3. Click **刷新预览** to scan layers
-4. Set the output folder, prefix, and rules in the right panel
-5. Choose an export mode:
-   - **选中的图层** — each selected layer/group as one PNG
-   - **选中的图层及子图层** — recursively export fine-grained layers inside selection
-   - **PSD 所有图层** — export all layers in the entire PSD
-6. Click **开始切图**
-
----
-
-1. 在 Photoshop 中打开 PSD
-2. 打开 **PSD Auto Slicer** 面板
-3. 点击 **刷新预览** 扫描图层
-4. 在右侧面板设置输出路径、前缀和规则
-5. 选择切图方式
-6. 点击 **开始切图**
-
----
-
-## Export Rules / 导出规则
-
-### Naming / 命名
-
-Auto-rename is on by default. It adds a type prefix and normalizes to `lower_snake_case`. Turn it off to keep original layer names (only illegal characters are replaced).
-
-自动命名默认开启，添加类型前缀并转为小写下划线格式。关闭后尽量保留原图层名，仅替换非法字符。
-
-### Even Size / 偶数尺寸
-
-Forces width and height to be even numbers by adding 1 transparent pixel if needed. Useful for most game engines.
-
-强制宽高为偶数，必要时补 1px 透明像素，适配大多数游戏引擎。
-
-### Uniform Size / 统一尺寸
-
-Pads all exports to a fixed `W × H` canvas, content centered. If content is larger than the target size, it is cropped from center.
-
-将所有导出资源统一到指定尺寸画布，内容居中；内容超出时从中心裁切。
-
-### Nine-Slice / 九宫切图
-
-Enable in the UI or add `@9s` / `@9s(left,top,right,bottom)` to a layer name. Exports two files:
-
-- `shape_panel_bg.png` — original trimmed image
-- `shape_panel_bg_9s.png` — compact nine-slice source (corners + minimal center strip)
-
-Border fields: **Left / Right** = pixels from each horizontal edge to the slice guide. **Top / Bottom** = pixels from each vertical edge. Leave a field empty or `0` to skip that axis (degrades to 3-slice).
-
----
-
-在 UI 勾选或在图层名加 `@9s` / `@9s(左,上,右,下)` 触发。同时导出原图和 `_9s` 最小九宫图（保留四角和边条，中间压缩为最小拉伸区）。
-
-边距字段：**左/右** 为从左右边缘到切割线的像素数，**上/下** 同理。留空或填 `0` 表示该方向不切，可退化为三宫格。
-
----
-
-## Output / 输出文件
-
-```
-output_folder/
-  GroupName/
-    shape_panel_bg.png
-    shape_panel_bg_9s.png
-    image_icon_coin.png
-    text_label_title.png
-  export_manifest.json
+```text
+@export Button Confirm
+[ignore] Reference Layer
+@9s(12,16,12,16) Panel Bg
 ```
 
-`export_manifest.json` records name, size, type, nine-slice info, and source layer path for every exported asset.
+## Current Version
 
-`export_manifest.json` 记录每个资源的名称、尺寸、类型、九宫信息和来源图层路径。
+- Plugin version: `0.2.49`
+- Photoshop host: `PS`
+- UXP minimum host version: `24.0.0`
+- Photoshop 2022 manual package target: `23.3+`
+
+## Notes
+
+The UXP panel provides the newer UI and distribution structure. The JSX script remains useful for direct script execution and stable slicing workflows.
 
 ---
 
-## Requirements / 环境要求
+# 中文
 
-- Adobe Photoshop 24.0 or later
-- Creative Cloud Desktop (for CCX install)
+PSD Auto Slicer 是一个 Photoshop UXP 插件，也包含可直接运行的 JSX 脚本流程。它用于从 PSD 中批量导出 UI 资源，自动处理命名、尺寸、九宫格和导出清单，减少手工切图与整理资源的重复工作。
 
----
+## 核心功能
 
-## License
+- 支持导出选中图层、选中图层及子图层、整份 PSD 图层。
+- 自动按 UI 语义命名：`Bg`、`Panel`、`Banner`、`Icon`、`Line`、`Btn`、`Font`。
+- 同名图层不会漏导；文件名冲突时自动追加 `_1`、`_2`。
+- 支持自动整理文件夹、强制偶数尺寸、画布尺寸输出、统一尺寸输出。
+- 支持九宫格 `_9s.png` 精简导出。
+- 输出 `export_manifest.json`，记录路径、尺寸、画布、九宫格、身份和 hash 信息。
+- 保留 JSX 脚本，可不安装插件面板直接运行。
 
-MIT
+## 安装
+
+### 方式 A：安装 UXP 包
+
+使用 `dist` 里的 `.ccx`：
+
+```text
+PSD-Auto-Slicer-UXP-v0.2.49.ccx
+```
+
+1. 双击 `.ccx` 文件。
+2. 按 Creative Cloud Desktop 提示完成安装。
+3. 重启 Photoshop。
+4. 打开 `Plugins > PSD Auto Slicer`。
+
+Photoshop 2022 或没有 Creative Cloud Desktop 的环境，可使用手动包：
+
+```text
+PSD-Auto-Slicer-UXP-v0.2.49-PS2022-manual.zip
+```
+
+将 `PSD Auto Slicer` 文件夹复制到：
+
+```text
+C:\Program Files\Adobe\Adobe Photoshop 2022\Plug-ins\
+```
+
+### 方式 B：开发者加载
+
+1. 安装 Adobe UXP Developer Tool。
+2. 选择本目录下的 `manifest.json`。
+3. 点击 `Load`。
+4. 回到 Photoshop 的 `Plugins` 菜单打开插件。
+
+### 方式 C：直接运行 JSX
+
+脚本位置：
+
+```text
+legacy/psd-auto-slicer.jsx
+```
+
+或使用工作区中的最新版独立脚本：
+
+```text
+scripts/psd-auto-slicer.jsx
+```
+
+在 Photoshop 中选择：
+
+```text
+File > Scripts > Browse...
+```
+
+然后选择 JSX 文件运行。
+
+## 使用
+
+1. 在 Photoshop 打开 PSD。
+2. 选中要导出的图层或分组。
+3. 打开 `Plugins > PSD Auto Slicer`，或运行 JSX 脚本。
+4. 设置输出目录和切图选项。
+5. 选择导出范围。
+6. 点击 `开始切图`。
+7. 检查输出的 PNG 和 `export_manifest.json`。
+
+## 推荐 PSD 约定
+
+建议使用顶层导出组：
+
+```text
+EXPORT/
+  Btn Start Normal
+  Icon Coin
+  Panel Bg
+```
+
+可选图层标记：
+
+```text
+@export Button Confirm
+[ignore] Reference Layer
+@9s(12,16,12,16) Panel Bg
+```
+
+## 当前版本
+
+- 插件版本：`0.2.49`
+- Photoshop host：`PS`
+- UXP 最低 host 版本：`24.0.0`
+- Photoshop 2022 手动包目标版本：`23.3+`
+
+## 说明
+
+UXP 面板提供新版界面和分发结构；JSX 脚本仍适合直接运行和稳定切图流程。

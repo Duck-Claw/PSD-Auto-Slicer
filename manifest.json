@@ -1,0 +1,37 @@
+{
+  "manifestVersion": 5,
+  "id": "com.codex.psd-auto-slicer",
+  "name": "PSD Auto Slicer",
+  "version": "0.2.49",
+  "main": "index.html",
+  "host": {
+    "app": "PS",
+    "minVersion": "24.0.0"
+  },
+  "requiredPermissions": {
+    "localFileSystem": "request"
+  },
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "psdAutoSlicerPanel",
+      "label": "PSD Auto Slicer",
+      "minimumSize": {
+        "width": 150,
+        "height": 100
+      },
+      "maximumSize": {
+        "width": 780,
+        "height": 920
+      },
+      "preferredDockedSize": {
+        "width": 660,
+        "height": 800
+      },
+      "preferredFloatingSize": {
+        "width": 660,
+        "height": 800
+      }
+    }
+  ]
+}
